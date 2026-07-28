@@ -3,6 +3,7 @@ name: CarClip 導線監視
 on:
   schedule:
     - cron: '0 */2 * * *'
+    - cron: '0 0 * * *'
   workflow_dispatch:
     inputs:
       force_mail:
@@ -27,7 +28,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: 依存をインストール
         run: npm install --no-audit --no-fund
@@ -45,7 +46,8 @@ jobs:
       - name: 監視を実行
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-          FORCE_MAIL: ${{ github.event_name == 'workflow_dispatch' && inputs.force_mail && '1' || '0' }}
+          FORCE_MAIL: ${{ (github.event.schedule == '0 0 * * *' || (github.event_name == 'workflow_dispatch' && inputs.force_mail)) && '1' || '0' }}
+          MAIL_MODE: ${{ github.event.schedule == '0 0 * * *' && 'digest' || 'manual' }}
         run: node monitor.mjs
 
       - name: 状態を記録（差分があるときだけコミット）
