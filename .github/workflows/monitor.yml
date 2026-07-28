@@ -1,0 +1,61 @@
+name: CarClip 導線監視
+
+on:
+  schedule:
+    - cron: '0 */2 * * *'
+  workflow_dispatch:
+    inputs:
+      force_mail:
+        description: '異常が無くてもレポートメールを送る'
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: carclip-monitor
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 依存をインストール
+        run: npm install --no-audit --no-fund
+
+      - name: Chromium をキャッシュから復元
+        id: pwcache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-v1
+
+      - name: Chromium をインストール
+        run: npx playwright install --with-deps chromium
+
+      - name: 監視を実行
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          FORCE_MAIL: ${{ github.event_name == 'workflow_dispatch' && inputs.force_mail && '1' || '0' }}
+        run: node monitor.mjs
+
+      - name: 状態を記録（差分があるときだけコミット）
+        run: |
+          git config user.name  "carclip-monitor"
+          git config user.email "actions@users.noreply.github.com"
+          if [ -n "$(git status --porcelain state.json)" ]; then
+            git add state.json
+            git commit -m "monitor: 状態更新 $(date -u +%Y-%m-%dT%H:%MZ)"
+            git push
+          else
+            echo "状態に変化なし"
+          fi
