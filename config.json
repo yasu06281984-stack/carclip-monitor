@@ -6,7 +6,7 @@
   "alert": {
     "_comment": "from は Resend で認証済みのドメインのアドレスにしてください。to は配列で複数指定できます。",
     "from": "CarClip監視 <alert@inumachi.com>",
-    "to": ["k.morita@tan3.shop"],
+    "to": ["staff@pioneer-monkeys.jp"],
     "subjectPrefix": "[CarClip監視]"
   },
 
