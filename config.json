@@ -1,0 +1,104 @@
+{
+  "_comment": "監視対象の定義。ページを追加したいときは pages 配列に足すだけです。",
+
+  "site": "https://car-clip.com",
+
+  "alert": {
+    "_comment": "from は Resend で認証済みのドメインのアドレスにしてください。to は配列で複数指定できます。",
+    "from": "CarClip監視 <alert@inumachi.com>",
+    "to": ["k.morita@tan3.shop"],
+    "subjectPrefix": "[CarClip監視]"
+  },
+
+  "options": {
+    "_comment": "productLinkSampleSize = 各ページから抽出した商品リンクを何本ランダム抽出して疎通確認するか",
+    "timeoutMs": 45000,
+    "productLinkSampleSize": 3,
+    "sendRecoveryMail": true,
+    "sendDailyDigestHourJST": 9
+  },
+
+  "cartCheck": {
+    "_comment": "実際にカート投入まで行うテスト。注文は確定しないので売上には影響しません。無効化したい場合は enabled を false に。",
+    "enabled": true,
+    "productUrl": "https://car-clip.com/tdi0208/",
+    "cartUrl": "https://car-clip.com/usces-cart/"
+  },
+
+  "pages": [
+    {
+      "name": "TDIチューニング LP",
+      "url": "https://car-clip.com/tdi/",
+      "mustContainText": ["TDIチューニング", "ご購入はこちら"],
+      "productLinkPattern": "^https://car-clip\\.com/tdi[0-9a-z-]*/?$",
+      "minProductLinks": 3,
+      "interactive": {
+        "_comment": "JSで生成される車種セレクターを実際に操作し、商品リンクが生成されるかを見る",
+        "type": "clickThrough",
+        "stepTexts": ["Bluetoothあり", "ディーゼル車"],
+        "resultLinkMustNotBe": "#"
+      }
+    },
+    {
+      "name": "AWIN LP",
+      "url": "https://car-clip.com/awin_lp/",
+      "mustContainText": ["AWIN", "ラインナップ"],
+      "productLinkPattern": "^https://car-clip\\.com/(awin[0-9a-z_-]*|awin-[0-9a-z_-]+)/?$",
+      "minProductLinks": 3
+    },
+    {
+      "name": "OKD プラズマダイレクト LP",
+      "url": "https://car-clip.com/okd/",
+      "mustContainText": ["プラズマダイレクト", "適合"],
+      "productLinkPattern": "^https://car-clip\\.com/(okd-sd-[0-9a-z]+|sd[0-9a-z]+)/?$",
+      "minProductLinks": 3,
+      "interactive": {
+        "type": "clickThrough",
+        "stepTexts": ["HONDA"],
+        "resultLinkMustNotBe": "#"
+      }
+    },
+    {
+      "name": "AIR ブランドページ",
+      "url": "https://car-clip.com/brand/air/",
+      "mustContainText": ["AIR"],
+      "productLinkPattern": "^https://car-clip\\.com/[0-9a-z_-]+/?$",
+      "minProductLinks": 1
+    },
+    {
+      "name": "BUSOU ブランドページ",
+      "url": "https://car-clip.com/busou/",
+      "mustContainText": ["BUSOU"],
+      "productLinkPattern": "^https://car-clip\\.com/busou[0-9a-z_-]*/?$",
+      "minProductLinks": 1
+    },
+    {
+      "name": "IMPUL ブランドページ",
+      "url": "https://car-clip.com/impul/",
+      "mustContainText": ["IMPUL"],
+      "productLinkPattern": "^https://car-clip\\.com/impul[0-9a-z_-]*/?$",
+      "minProductLinks": 1
+    },
+    {
+      "name": "Junack カテゴリ",
+      "url": "https://car-clip.com/category/car-clip/car-clip0123/",
+      "mustContainText": [],
+      "productLinkPattern": "^https://car-clip\\.com/[0-9a-z_-]+/?$",
+      "minProductLinks": 1
+    },
+    {
+      "name": "OKD 全車種ラインナップ（404疑いのリンク先）",
+      "url": "https://car-clip.com/category/car-clip0156/",
+      "mustContainText": [],
+      "productLinkPattern": null,
+      "minProductLinks": 0
+    },
+    {
+      "name": "カートページ",
+      "url": "https://car-clip.com/usces-cart/",
+      "mustContainText": [],
+      "productLinkPattern": null,
+      "minProductLinks": 0
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "carclip-monitor",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "car-clip.com のLP→商品→カート導線を実ブラウザで定期監視し、異常時にメール通知する",
+  "scripts": {
+    "check": "node monitor.mjs"
+  },
+  "dependencies": {
+    "playwright": "^1.48.0"
+  }
+}
