@@ -20,6 +20,7 @@ const CONFIG = JSON.parse(readFileSync('./config.json', 'utf8'));
 const STATE_PATH = './state.json';
 const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
 const FORCE_MAIL = process.env.FORCE_MAIL === '1';
+const MAIL_MODE = process.env.MAIL_MODE || 'manual'; // 'digest' | 'manual'
 
 const nowJst = () =>
   new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
@@ -399,21 +400,25 @@ async function main() {
   const newlyBroken = nowFailing.filter((n) => !prevFailing.includes(n));
   const recovered = prevFailing.filter((n) => !nowFailing.includes(n));
 
+  const modeLabel = MAIL_MODE === 'digest' ? '日次レポート' : '手動実行レポート';
+
   let mailed = false;
   if (newlyBroken.length > 0 || FORCE_MAIL) {
-    const subject =
-      newlyBroken.length > 0
-        ? `${CONFIG.alert.subjectPrefix} 異常検知 ${nowFailing.length}件（新規${newlyBroken.length}件）`
-        : `${CONFIG.alert.subjectPrefix} 手動実行レポート`;
-    mailed = await sendMail(
-      subject,
-      buildHtml(
-        results,
-        newlyBroken.length > 0
-          ? '購入導線に異常を検知しました'
-          : '手動実行レポート'
-      )
-    );
+    let subject;
+    let headline;
+
+    if (newlyBroken.length > 0) {
+      subject = `${CONFIG.alert.subjectPrefix} 異常検知 ${nowFailing.length}件（新規${newlyBroken.length}件）`;
+      headline = '購入導線に異常を検知しました';
+    } else if (failing.length > 0) {
+      subject = `${CONFIG.alert.subjectPrefix} ${modeLabel}（異常${failing.length}件・継続中）`;
+      headline = `${modeLabel}：異常が続いています`;
+    } else {
+      subject = `${CONFIG.alert.subjectPrefix} ${modeLabel}（すべて正常）`;
+      headline = `${modeLabel}：すべて正常です`;
+    }
+
+    mailed = await sendMail(subject, buildHtml(results, headline));
   } else if (recovered.length > 0 && CONFIG.options.sendRecoveryMail) {
     mailed = await sendMail(
       `${CONFIG.alert.subjectPrefix} 復旧しました（${recovered.join('、')}）`,
