@@ -1,5 +1,6 @@
 {
-  "updatedAt": "2026/7/29 11:42:16",
+  "updatedAt": "2026/7/29 12:00:09",
   "failingNames": [],
-  "mailed": false
+  "mailed": true,
+  "lastDigestDate": "2026-07-29"
 }
