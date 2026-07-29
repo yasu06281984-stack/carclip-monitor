@@ -400,10 +400,31 @@ async function main() {
   const newlyBroken = nowFailing.filter((n) => !prevFailing.includes(n));
   const recovered = prevFailing.filter((n) => !nowFailing.includes(n));
 
-  const modeLabel = MAIL_MODE === 'digest' ? '日次レポート' : '手動実行レポート';
+  /* --- 日次レポートの判定 ---------------------------------------
+   * GitHub Actions の定期実行は混雑時に60〜90分ずれる。
+   * そのため「毎日9時ちょうどに送る」という作りにすると、
+   * 枠が重なって実行が破棄され、届かない日が出てしまう。
+   *
+   * そこで時刻ではなく「その日まだ送っていなければ送る」に変更した。
+   * JST 7時以降の最初の実行で送るため、どれだけ遅延しても
+   * 必ず1日1通、9時より前に届く。
+   * ------------------------------------------------------------ */
+  const DIGEST_AFTER_JST_HOUR = 7;
+  const jstNow = new Date(Date.now() + 9 * 60 * 60 * 1000);
+  const todayJst = jstNow.toISOString().slice(0, 10);
+  const hourJst = jstNow.getUTCHours();
+  const shouldDigest =
+    hourJst >= DIGEST_AFTER_JST_HOUR && prev.lastDigestDate !== todayJst;
+
+  console.log(
+    `日次レポート判定: JST ${todayJst} ${hourJst}時 / ` +
+      `前回送信日 ${prev.lastDigestDate || 'なし'} / 送信する=${shouldDigest}`
+  );
+
+  const modeLabel = shouldDigest ? '日次レポート' : '手動実行レポート';
 
   let mailed = false;
-  if (newlyBroken.length > 0 || FORCE_MAIL) {
+  if (newlyBroken.length > 0 || FORCE_MAIL || shouldDigest) {
     let subject;
     let headline;
 
@@ -430,10 +451,19 @@ async function main() {
     console.log('異常継続中（通知済みのため再送しません）。');
   }
 
+  /* メール送信に成功していれば、その日の日次レポートは済んだものとする。
+     送信に失敗した場合は記録しないので、次の実行で再挑戦される。 */
+  const digestSent = mailed && hourJst >= DIGEST_AFTER_JST_HOUR;
+
   writeFileSync(
     STATE_PATH,
     JSON.stringify(
-      { updatedAt: nowJst(), failingNames: nowFailing, mailed },
+      {
+        updatedAt: nowJst(),
+        failingNames: nowFailing,
+        mailed,
+        lastDigestDate: digestSent ? todayJst : prev.lastDigestDate || '',
+      },
       null,
       2
     ) + '\n'
