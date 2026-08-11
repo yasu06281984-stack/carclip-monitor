@@ -1,6 +1,8 @@
 {
-  "updatedAt": "2026/8/11 16:09:30",
-  "failingNames": [],
-  "mailed": false,
+  "updatedAt": "2026/8/11 17:59:33",
+  "failingNames": [
+    "Junack カテゴリ"
+  ],
+  "mailed": true,
   "lastDigestDate": "2026-08-11"
 }
