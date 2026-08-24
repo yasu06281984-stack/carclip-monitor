@@ -1,6 +1,8 @@
 {
-  "updatedAt": "2026/8/24 23:43:15",
-  "failingNames": [],
-  "mailed": false,
+  "updatedAt": "2026/8/25 1:42:16",
+  "failingNames": [
+    "OKD プラズマダイレクト LP"
+  ],
+  "mailed": true,
   "lastDigestDate": "2026-08-24"
 }
