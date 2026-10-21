@@ -1,8 +1,17 @@
 {
-  "updatedAt": "2026/10/21 23:55:21",
+  "updatedAt": "2026/10/22 4:57:08",
   "failingNames": [
-    "TDIチューニング LP"
+    "TDIチューニング LP",
+    "AWIN LP",
+    "OKD プラズマダイレクト LP",
+    "AIR ブランドページ",
+    "BUSOU ブランドページ",
+    "IMPUL ブランドページ",
+    "Junack カテゴリ",
+    "OKD 全車種ラインナップ（404疑いのリンク先）",
+    "カートページ",
+    "カート投入テスト"
   ],
-  "mailed": false,
+  "mailed": true,
   "lastDigestDate": "2026-10-21"
 }
